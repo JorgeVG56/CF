@@ -1,8 +1,3 @@
-/*
-  Pura gente del Coach Moy
-
-  
-*/
 #include<bits/stdc++.h>
 using namespace std;
 using ll = long long;
@@ -12,36 +7,28 @@ signed main() {
 
   int t; cin >> t;
 
-  for(int c = 0; c < t; c++){
+  for(int _t = 0; _t < t; _t++) {
     int n; cin >> n;
-    vector<int> a(n); for(auto & x : a) cin >> x;
+    
+    vector<int> a(n); for(int & x : a) cin >> x;
 
-    // Sin derrumbes, maximo subarreglo creci
-    vector<int> dp(n + 1, 1);
-    for(int i = 1; i < n; i++) if(a[i] > a[i - 1]) dp[i] = dp[i - 1] + 1;
+    vector<array<int, 2>> dp(n); dp[0][0] = dp[0][1] = 1;
+    vector<int> heads = {0, a[0]};
+    int ans = 1;
+    for(int i = 1; i < n; i++) {
+      if(a[i] > a[i - 1]) dp[i][0] = dp[i - 1][0] + 1, dp[i][1] = dp[i - 1][1] + 1;
+      else dp[i][0] = 1, dp[i][1] = 1;
 
-    vector<int> dpLIS(n + 1);
-    vector<int> dpAns(n); dpAns[0] = 1;
+      int size = lower_bound(begin(heads), end(heads), a[i]) - begin(heads);
+      if(dp[i][0] == heads.size()) heads.push_back(a[i]);
+      else if(a[i] < heads[dp[i][0]]) heads[dp[i][0]] = a[i];
+      
+      dp[i][1] = max(dp[i][1], size);
 
-    int size = 0;
-    for(int i = 0; i < n; i++){
-      if(i > 0 && a[i] > a[i - 1]) dpAns[i] = dpAns[i - 1] + 1;
-
-      int pos = (int)(lower_bound(begin(dpLIS), begin(dpLIS) + size, a[i]) - begin(dpLIS));
-
-      dpAns[i] = max(dpAns[i], pos);
-
-      if(dpLIS[dp[i]] == 0 || dpLIS[dp[i]] > a[i]){
-        size = max(size, dp[i] + 1);
-        dpLIS[dp[i]] = a[i];
-      }
+      ans = max({ans, dp[i][0], dp[i][1]});
     }
 
-    // for(int i = 0; i < n; i++){
-    //   cout << dpAns[i] << ' ';
-    // }
-
-    cout << *max_element(begin(dpAns), end(dpAns)) << '\n';
+    cout << ans << '\n';
   }
 
   return 0;
